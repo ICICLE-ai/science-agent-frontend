@@ -1,0 +1,16 @@
+schema-version: 1
+
+# Identity
+service-name:
+service-version:
+project-name:
+service-type:
+pod-name:
+
+# Runtime
+runtime-type:
+runtime-version:
+
+# System packages (leave empty lists if you don't need any)
+build-apt-packages: []
+runtime-apt-packages: []
