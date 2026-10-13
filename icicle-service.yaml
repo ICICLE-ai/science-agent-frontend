@@ -1,16 +1,16 @@
 schema-version: 1
 
 # Identity
-service-name:
-service-version:
-project-name:
-service-type:
-pod-name:
+service-name: science-agent-frontend-service
+service-version: 1.0.0
+project-name: icicle-science-agent
+service-type: ai
+pod-name: scienceagent
 
 # Runtime
-runtime-type:
-runtime-version:
+runtime-type: node-frontend
+runtime-version: "26.0"
 
 # System packages (leave empty lists if you don't need any)
-build-apt-packages: []
+build-apt-packages: [libatomic1]
 runtime-apt-packages: []
