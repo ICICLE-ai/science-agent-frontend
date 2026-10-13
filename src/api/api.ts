@@ -16,10 +16,14 @@ export interface CodeFile {
 }
 
 export interface UploadedFile {
+  id?: string;
   name: string;
   size: number;
-  object_name: string; // S3 object name
+  object_name: string;
   source: string;
+  storage?: "postgres";
+  content_type?: string;
+  sha256?: string;
 }
 
 export interface OutputFile {
