@@ -219,25 +219,64 @@ export const logoutTapisAccount = async (): Promise<void> => {
 };
 
 export interface S3Profile {
+  id: string;
+  name: string;
   endpoint: string;
   bucket: string;
   region: string;
+  selected: boolean;
 }
 
-export interface S3Settings { configured: boolean; profile: S3Profile | null }
+export interface S3CredentialInput {
+  name: string;
+  endpoint: string;
+  bucket: string;
+  region: string;
+  access_key_id: string;
+  secret_access_key: string;
+}
 
-export const accountS3Settings = async (
-  method: "GET" | "PUT" | "DELETE" = "GET",
-  data?: S3Profile & { access_key_id: string; secret_access_key: string },
-): Promise<S3Settings> => {
-  const response = await apiFetch(`${BASE_URL}/api/account/s3`, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    ...(data ? { body: JSON.stringify(data) } : {}),
-  });
+export interface S3Settings {
+  configured: boolean;
+  profile: S3Profile | null;
+  profiles: S3Profile[];
+  selected_profile_id: string | null;
+  saved_profile?: S3Profile;
+}
+
+const s3Request = async (path = "", init: RequestInit = {}): Promise<S3Settings> => {
+  const response = await apiFetch(`${BASE_URL}/api/account/s3${path}`, init);
   const result = await response.json();
   if (!response.ok) throw new Error(result.error || "Could not update S3 settings.");
   return result;
+};
+
+export const accountS3Settings = (): Promise<S3Settings> => s3Request();
+
+export const saveS3Credentials = (data: S3CredentialInput, id?: string): Promise<S3Settings> =>
+  s3Request(id ? `/${id}` : "", {
+    method: id ? "PUT" : "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+export const selectS3Credentials = (id: string | null): Promise<S3Settings> =>
+  s3Request("/selection", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ profile_id: id }),
+  });
+
+export const deleteS3Credentials = (id: string): Promise<S3Settings> =>
+  s3Request(`/${id}`, { method: "DELETE" });
+
+export const importS3Credentials = (file: File, fields: S3CredentialInput): Promise<S3Settings> => {
+  const data = new FormData();
+  data.append("file", file);
+  for (const field of ["name", "endpoint", "bucket", "region"] as const) {
+    if (fields[field].trim()) data.append(field, fields[field].trim());
+  }
+  return s3Request("/import", { method: "POST", body: data });
 };
 
 export interface StorageFolder {
