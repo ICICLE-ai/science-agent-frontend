@@ -191,7 +191,7 @@ export interface AccountSession {
 }
 
 export const fetchAccountSession = async (): Promise<AccountSession> => {
-  const response = await apiFetch(`${BASE_URL}/api/account/session`);
+  const response = await apiFetch(`/api/account/session`);
   return response.json();
 };
 
@@ -199,7 +199,7 @@ export const connectTapisAccount = async (
   tapisToken: string,
   legacySessionIds: string[] = [],
 ): Promise<AccountSession> => {
-  const response = await apiFetch(`${BASE_URL}/api/account/connect`, {
+  const response = await apiFetch(`/api/account/connect`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -215,7 +215,7 @@ export const connectTapisAccount = async (
 };
 
 export const logoutTapisAccount = async (): Promise<void> => {
-  await apiFetch(`${BASE_URL}/api/account/logout`, { method: "POST" });
+  await apiFetch(`/api/account/logout`, { method: "POST" });
 };
 
 export interface S3Profile {
@@ -245,7 +245,7 @@ export interface S3Settings {
 }
 
 const s3Request = async (path = "", init: RequestInit = {}): Promise<S3Settings> => {
-  const response = await apiFetch(`${BASE_URL}/api/account/s3${path}`, init);
+  const response = await apiFetch(`/api/account/s3${path}`, init);
   const result = await response.json();
   if (!response.ok) throw new Error(result.error || "Could not update S3 settings.");
   return result;
@@ -302,7 +302,7 @@ export interface StorageListing {
 }
 
 export const fetchStorageObjects = async (prefix = "science-agent/"): Promise<StorageListing> => {
-  const response = await apiFetch(`${BASE_URL}/api/storage/objects?${new URLSearchParams({ prefix })}`);
+  const response = await apiFetch(`/api/storage/objects?${new URLSearchParams({ prefix })}`);
   const result = await response.json();
   if (!response.ok) {
     throw new Error(result.error || "Failed to load S3 objects.");
@@ -311,7 +311,7 @@ export const fetchStorageObjects = async (prefix = "science-agent/"): Promise<St
 };
 
 export const storageDownloadUrl = (key: string) =>
-  `${BASE_URL}/api/storage/download?${new URLSearchParams({ key })}`;
+  `/api/storage/download?${new URLSearchParams({ key })}`;
 
 export interface StorageDeleteResult {
   deleted: boolean;
@@ -323,7 +323,7 @@ export interface StorageDeleteResult {
 const deleteStoragePath = async (path: "object" | "prefix", value: string): Promise<StorageDeleteResult> => {
   const parameter = path === "object" ? "key" : "prefix";
   const response = await apiFetch(
-    `${BASE_URL}/api/storage/${path}?${new URLSearchParams({ [parameter]: value })}`,
+    `/api/storage/${path}?${new URLSearchParams({ [parameter]: value })}`,
     { method: "DELETE" },
   );
   const result = await response.json();
@@ -341,7 +341,7 @@ export const outputFileUrl = (file: OutputFile) => {
 };
 
 export const createAgentSession = async () => {
-  const response = await apiFetch(`${BASE_URL}/api/execution/agent_session`, {
+  const response = await apiFetch(`/api/execution/agent_session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -349,7 +349,7 @@ export const createAgentSession = async () => {
 };
 
 export const validateAgentSession = async (agent_session_id: string) => {
-  const response = await apiFetch(`${BASE_URL}/api/execution/agent_session/validate`, {
+  const response = await apiFetch(`/api/execution/agent_session/validate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ agent_session_id}),
@@ -368,7 +368,7 @@ export interface DeleteAgentSessionResponse {
 export const deleteAgentSession = async (
   agentSessionId: string,
 ): Promise<DeleteAgentSessionResponse> => {
-  const response = await apiFetch(`${BASE_URL}/api/execution/agent_session/${agentSessionId}`, {
+  const response = await apiFetch(`/api/execution/agent_session/${agentSessionId}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
   });
@@ -382,7 +382,7 @@ export const deleteAgentSession = async (
 };
 
 export const createAgentSessionFromTask = async (taskId: string) => {
-  const response = await apiFetch(`${BASE_URL}/api/tasks/${taskId}/agent_session`, {
+  const response = await apiFetch(`/api/tasks/${taskId}/agent_session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -390,7 +390,7 @@ export const createAgentSessionFromTask = async (taskId: string) => {
 };
 
 export const fetchTasks = async (): Promise<AgentSession[]> => {
-  const response = await apiFetch(`${BASE_URL}/api/tasks/`, {
+  const response = await apiFetch(`/api/tasks/`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' }
   });
@@ -398,7 +398,7 @@ export const fetchTasks = async (): Promise<AgentSession[]> => {
 };
 
 export const fetchUserTasks = async (): Promise<AgentSession[]> => {
-  const response = await apiFetch(`${BASE_URL}/api/execution/agent_sessions`, {
+  const response = await apiFetch(`/api/execution/agent_sessions`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' }
   });
@@ -410,7 +410,7 @@ export const fetchUserTasks = async (): Promise<AgentSession[]> => {
 };
 
 export const fetchTask = async (instanceId: string | number): Promise<AgentSession> => {
-  const response = await apiFetch(`${BASE_URL}/api/tasks/${instanceId}`, {
+  const response = await apiFetch(`/api/tasks/${instanceId}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' }
   });
@@ -418,7 +418,7 @@ export const fetchTask = async (instanceId: string | number): Promise<AgentSessi
 };
 
 export const createTask = async (data: any) => {
-  const response = await apiFetch(`${BASE_URL}/api/tasks/`, {
+  const response = await apiFetch(`/api/tasks/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -427,7 +427,7 @@ export const createTask = async (data: any) => {
 };
 
 export const createUserTask = async (data: any) => {
-  const response = await apiFetch(`${BASE_URL}/api/userTasks`, {
+  const response = await apiFetch(`/api/userTasks`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -436,7 +436,7 @@ export const createUserTask = async (data: any) => {
 };
 
 export const evaluateTask = async (data: any) => {
-  const response = await apiFetch(`${BASE_URL}/api/evaluate`, {
+  const response = await apiFetch(`/api/evaluate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -581,7 +581,7 @@ export const uploadFile = async (
     return new Promise((resolve, _reject) => {
       const xhr = new XMLHttpRequest();
       
-      xhr.open('POST', `${BASE_URL}/api/execution/upload/${agentSessionId}`);
+      xhr.open('POST', `/api/execution/upload/${agentSessionId}`);
       xhr.withCredentials = true;
       
       xhr.upload.addEventListener('progress', (event) => {
@@ -617,7 +617,7 @@ export const deleteFile = async (
 ): Promise<{ success: boolean; error?: string }> => {
   try {
     const response = await apiFetch(
-      `${BASE_URL}/api/execution/upload/${agentSessionId}/${filename}`,
+      `/api/execution/upload/${agentSessionId}/${filename}`,
       { method: 'DELETE' },
     );
     
