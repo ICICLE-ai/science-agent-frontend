@@ -6,7 +6,10 @@ Science Agent helps researchers use ICICLE services and resources through natura
 
 ### License
 
-A project license has not yet been specified in this repository. License approval is required before the software release.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+This project continues the MIT license of the original
+[ScienceAgentInterface](https://github.com/ICICLE-ai/ScienceAgentInterface), retaining its copyright notice.
 
 ## References
 

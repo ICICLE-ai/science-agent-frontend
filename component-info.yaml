@@ -1,0 +1,26 @@
+- id: "ScienceAgentFrontend:1.0.1"
+  owner: "Hansol Lee"
+  primaryThrust: "core/CI4AI"
+  name: "Science Agent Frontend"
+  status: "PrototypeRelease"
+  description: >-
+    Browser interface for Science Agent, helping researchers use ICICLE services
+    through natural-language requests. Users upload data, select S3 credentials,
+    manage conversations, and follow remote storage and labeling workflows.
+  # Matches package.json and icicle-service.yaml.
+  componentVersion: "1.0.0"
+  # Release date supplied by the maintainer: 2026-10-15. Catalog stores YYYY-MM.
+  targetIcicleRelease: "2026-10"
+  # Direct service dependency; ArrayMorph and Smart Labeler are declared by the backend.
+  hasDependentComponents:
+    - related_to: "ScienceAgentBackend:1.0.1"
+      relationship_type: "DependsOn"
+  licenseUrl: "https://github.com/ICICLE-ai/science-agent-frontend?tab=MIT-1-ov-file"
+  publicAccess: true
+  sourceCodeUrl: "https://github.com/ICICLE-ai/science-agent-frontend"
+  # No completed formal review has been confirmed.
+  codeReviewConducted: false
+  # No frontend automated test suite was found; builds are not end-to-end tests.
+  testsWritten: false
+  developerDocumentationAvailable: true
+  trainingTutorialsAvailable: true
