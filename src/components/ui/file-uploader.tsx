@@ -25,7 +25,7 @@ export function FileUploader({
   files,
   onFilesAdded,
   onFileDelete,
-  maxSize = 100 * 1024 * 1024, // 100MB by default
+  maxSize = 64 * 1024 * 1024,
   accept,
   multiple = true,
 }: FileUploaderProps) {

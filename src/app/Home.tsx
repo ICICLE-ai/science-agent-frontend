@@ -983,7 +983,7 @@ const Execution = () => {
             onFilesAdded={handleFilesAdded}
             onFileDelete={handleFileDelete}
             multiple={true}
-            maxSize={100 * 1024 * 1024 * 2}
+            maxSize={64 * 1024 * 1024}
           />
         </div>
       </div>
