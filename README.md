@@ -26,26 +26,37 @@ This project continues the MIT license of the original
 
 # Tutorials
 
-## Store an image and request labeling
+## Store files and request labeling
 
-This walkthrough uses one image, a valid ICICLE account, a working backend and agent pod, and an S3 bucket you can access. Smart Labeler submission also requires access to the configured Tapis storage and compute resources.
+This walkthrough uses a image, a valid ICICLE account, a working backend and agent pod, and an S3 bucket you can access. Smart Labeler submission also requires access to the configured Tapis storage and compute resources.
 
-1. Open Science Agent from the ICICLE hub. The backend identifies your account from the Tapis cookie; a production user does not need to paste a token.
-2. Create a conversation using **New Conversation**, and upload one image.
-3. Open **Settings**, find **S3 Credentials**, and save a named credential profile. Supply the endpoint, bucket, region, access key, and secret key, or import a supported credential file. Select the profile you want this request to use.
-4. Enter a request such as:
+The screenshots below use example account, bucket, and job information.
 
-   > Upload this image with ArrayMorph and use Smart Labeler to label it.
+### 1. Select an S3 profile
 
-5. Start the request and follow the available progress updates. The intended workflow stores the image through ArrayMorph, recovers it, stages it through Tapis, creates a Smart Labeler pipeline, and submits a job.
-6. Read the response for completed stages, pipeline and job IDs, and any point where processing stopped. A submitted job is not a finished labeling result.
-7. Continue in the same conversation:
+Open Science Agent from the ICICLE hub. The backend identifies your account from the Tapis cookie. In the sidebar, open **Settings**. Under **S3 Credentials**, use **Add S3 credentials** to enter your endpoint, bucket, region, access key, and secret key or import a supported credential file. Save the profile, then choose it under **Selected credentials**. Do not paste credentials into chat.
 
-   > Check the status of job JOB_ID. Do not submit another job.
+![Settings sidebar with an example S3 profile selected](docs/tutorial/s3-profile.jpg)
 
-   Replace JOB_ID with the actual ID returned by the service.
+### 2. Attach files and run the request
 
-The expected outcome is a recorded workflow report and, when submission succeeds, a pipeline and job identifier. Availability of finished annotations depends on the external job; do not assume submission means the image has already been labeled.
+Open **Chats** and select **New Conversation**. Upload files under **Data Files**. In the **Request** field, enter the prompt below and click **Run Request**.
+
+> Upload this image with ArrayMorph and use Smart Labeler to label it.
+
+![New conversation with one attached image, the labeling request, and the Run Request button](docs/tutorial/image-request.jpg)
+
+### 3. Read the job report
+
+When the request succeeds, the report describes the ArrayMorph storage and recovery, Tapis staging, Smart Labeler pipeline creation, and job submission. Note the pipeline ID and job ID.
+
+![Example response showing the completed preparation steps and a submitted job with PENDING status](docs/tutorial/job-submission.jpg)
+
+A status such as `PENDING` means the job was submitted, not that the labels are ready. To check progress, follow up in the same conversation using the actual job ID from your report:
+
+> Check the status of job JOB_ID. Do not submit another job.
+
+If a step fails, check the last reported stage before retrying. An earlier step may already have saved data or created a pipeline.
 
 ## Ask for advice or continue previous work
 
@@ -55,7 +66,7 @@ For advice without starting a job, ask:
 
 For storage only, ask:
 
-> Store this uploaded image with ArrayMorph in my selected S3 bucket. Do not run Smart Labeler.
+> Store this uploaded image with ArrayMorph in my selected S3 bucket.
 
 Reopen a conversation from the conversation list or Gallery to review its messages and continue the work. Deleting a conversation removes its application records, not jobs or objects already created in external services.
 
