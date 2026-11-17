@@ -299,10 +299,13 @@ export interface StorageListing {
   folders: StorageFolder[];
   objects: StorageObject[];
   is_truncated: boolean;
+  next_continuation_token?: string | null;
 }
 
-export const fetchStorageObjects = async (prefix = "science-agent/"): Promise<StorageListing> => {
-  const response = await apiFetch(`/api/storage/objects?${new URLSearchParams({ prefix })}`);
+export const fetchStorageObjects = async (prefix = "science-agent/", continuationToken?: string): Promise<StorageListing> => {
+  const params = new URLSearchParams({ prefix });
+  if (continuationToken) params.set("continuation_token", continuationToken);
+  const response = await apiFetch(`/api/storage/objects?${params}`);
   const result = await response.json();
   if (!response.ok) {
     throw new Error(result.error || "Failed to load S3 objects.");

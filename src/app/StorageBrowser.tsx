@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import {
   Box,
@@ -52,26 +52,43 @@ const StorageBrowser = () => {
   const [listing, setListing] = useState<StorageListing | null>(null)
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const activeRequest = useRef<object | null>(null)
   const [error, setError] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
   const [deleting, setDeleting] = useState(false)
 
-  const loadObjects = useCallback(async () => {
-    setLoading(true)
+  const loadObjects = useCallback(async (continuationToken?: string) => {
+    const request = {}
+    activeRequest.current = request
+    setLoading(!continuationToken)
+    setLoadingMore(Boolean(continuationToken))
+    if (!continuationToken) setListing(null)
     setError("")
     try {
-      setListing(await fetchStorageObjects(prefix))
+      const page = await fetchStorageObjects(prefix, continuationToken)
+      if (request !== activeRequest.current) return
+      setListing((previous) => continuationToken && previous?.prefix === prefix ? {
+        ...page,
+        folders: [...new Map([...previous.folders, ...page.folders].map((item) => [item.prefix, item])).values()],
+        objects: [...new Map([...previous.objects, ...page.objects].map((item) => [item.key, item])).values()],
+      } : page)
     } catch (err) {
+      if (request !== activeRequest.current) return
       const message = err instanceof Error ? err.message : "Failed to load S3 objects."
       setError(message)
       toast.error(message)
     } finally {
-      setLoading(false)
+      if (request === activeRequest.current) {
+        setLoading(false)
+        setLoadingMore(false)
+      }
     }
   }, [prefix])
 
   useEffect(() => {
-    loadObjects()
+    void loadObjects()
+    return () => { activeRequest.current = null }
   }, [loadObjects])
 
   const handleDelete = async () => {
@@ -91,6 +108,7 @@ const StorageBrowser = () => {
       await loadObjects()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to delete the storage item.")
+      await loadObjects()
     } finally {
       setDeleting(false)
     }
@@ -160,8 +178,8 @@ const StorageBrowser = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={loadObjects}
-                    disabled={loading}
+                    onClick={() => void loadObjects()}
+                    disabled={loading || loadingMore || deleting}
                     aria-label="Refresh objects"
                   >
                     <RefreshCw className={loading ? "animate-spin" : ""} />
@@ -195,7 +213,7 @@ const StorageBrowser = () => {
                 <th className="font-medium px-3 w-[14%]">Type</th>
                 <th className="font-medium px-3 w-[14%] text-right">Size</th>
                 <th className="font-medium px-3 w-[18%]">Last modified</th>
-                <th className="font-medium px-3 w-[10%]"><span className="sr-only">Actions</span></th>
+                <th className="relative font-medium px-3 w-[10%]"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody>
@@ -309,9 +327,22 @@ const StorageBrowser = () => {
           </div>
         )}
 
-        <footer className="h-12 flex items-center justify-between text-xs text-muted-foreground border-t border-border mt-2">
+        {listing?.is_truncated && listing.next_continuation_token && (
+          <div className="flex justify-center py-3">
+            <Button
+              variant="outline"
+              disabled={loadingMore || deleting}
+              onClick={() => void loadObjects(listing.next_continuation_token!)}
+            >
+              <RefreshCw className={loadingMore ? "animate-spin" : ""} />
+              {loadingMore ? "Loading..." : "Load more"}
+            </Button>
+          </div>
+        )}
+
+        <footer className="min-h-12 flex flex-wrap gap-2 items-center justify-between text-xs text-muted-foreground border-t border-border mt-2 py-3">
           <span>{folders.length} folders, {objects.length} objects</span>
-          <span>{formatFileSize(totalBytes)} in this prefix</span>
+          <span>{formatFileSize(totalBytes)}{listing?.is_truncated ? " loaded" : " in this prefix"}</span>
         </footer>
       </main>
 

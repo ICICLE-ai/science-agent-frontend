@@ -76,7 +76,6 @@ import HelpModal from "../components/HelpModal"
 import WorkflowStepsIndicator from "../components/WorkflowStepsIndicator"
 import { CodeBlockRenderer } from "@/components/CodeBlockRenderer"
 import { LocalStorageInput } from "@/components/ui/local-storage-input"
-import { LocalStorageSwitch } from "@/components/ui/local-storage-switch"
 import { CodeEditorPanel } from "@/components/panels/CodeEditorPanel"
 import { ResizablePanels } from "../components/ResizablePanels"
 import { TapisAccountControl } from "@/components/TapisAccountControl"
@@ -633,12 +632,10 @@ const Execution = () => {
     || "New conversation"
 
   const getSettings = () => {
-    const useSelfDebug = localStorage.getItem("use_self_debug")
     return {
       llm_engine_name: localStorage.getItem("llm_engine_name"),
       llm_api_key: localStorage.getItem("llm_api_key"),
       llm_base_url: localStorage.getItem("llm_base_url"),
-      use_self_debug: useSelfDebug === "true" || !useSelfDebug,
     }
   }
 
@@ -827,13 +824,6 @@ const Execution = () => {
         }} />
         <Label htmlFor="resizable-tabs">Use Resizable Tabs</Label>
       </div>
-
-      <LocalStorageSwitch
-        storageKey="use_self_debug"
-        label="Use Self-Debug"
-        help="Enable or disable the self-debugging feature of the agent."
-        defaultValue={true}
-      />
 
       <div className="border-t border-border pt-5">
         <h3 className="text-sm font-semibold mb-4">ICICLE Access</h3>
