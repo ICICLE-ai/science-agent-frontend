@@ -24,6 +24,7 @@ import {
   Trash2,
   Database,
   Plus,
+  Download,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -43,6 +44,7 @@ import {
   deleteAgentSession,
   fetchAccountSession,
   fetchUserTasks,
+  downloadOutputFile,
   type AccountSession,
   type ExecutionLogEntry,
   type CodeFile,
@@ -649,7 +651,6 @@ const Execution = () => {
       setCodeFiles(codeFiles => codeFiles.filter((f) => f.is_gold))
       setReasoningProcess([])
       setExecutionLog([])
-      setOutputFiles([])
     }
 
     setIsGenerating(true)
@@ -1131,6 +1132,14 @@ const Execution = () => {
                 </div>
                 {message.items.map((item, i) => (
                   <div key={i}>{renderHistoryBlock(message, item)}</div>
+                ))}
+                {outputFiles.filter(file => file.message_id === message.id).map(file => (
+                  <Button key={file.id} variant="outline" className="mt-3 h-auto max-w-full justify-start gap-2 py-2"
+                    title={file.source_path || file.filename}
+                    onClick={() => downloadOutputFile(file).catch(error => toast.error(error.message))}>
+                    <Download className="h-4 w-4 shrink-0" />
+                    <span className="min-w-0 break-all text-left">{file.filename} ({formatFileSize(file.size)})</span>
+                  </Button>
                 ))}
               </div>
             ),

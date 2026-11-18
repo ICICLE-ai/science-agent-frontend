@@ -1,7 +1,8 @@
 import React, { useEffect } from "react"
 import { useState } from "react"
 import { useTheme } from "@/providers/ThemeProvider"
-import { OutputFile, outputFileUrl } from "../api/api"
+import { OutputFile, outputFileUrl, downloadOutputFile, fetchOutputFile } from "../api/api"
+import { toast } from "sonner"
 import { formatFileSize, useLocalStorageState } from "@/lib/utils"
 import { ImageIcon, Files, FileCode, Download, ChevronDown, Expand } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -27,14 +28,17 @@ export const FileCard: React.FC<FileCardProps> = ({ file }) => {
     e.preventDefault()
     e.stopPropagation()
 
-    // Create a temporary anchor element to trigger download
-    const a = document.createElement("a")
-    a.href = outputFileUrl(file)
-    a.download = file.filename
-    a.target = "_blank"
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
+    if (file.storage === "postgres") {
+      void downloadOutputFile(file).catch(error => toast.error(error.message))
+      return
+    }
+    const anchor = document.createElement("a")
+    anchor.href = outputFileUrl(file)
+    anchor.download = file.filename
+    anchor.target = "_blank"
+    document.body.appendChild(anchor)
+    anchor.click()
+    anchor.remove()
   }
 
   // Fetch text content on demand and cache it
@@ -45,7 +49,7 @@ export const FileCard: React.FC<FileCardProps> = ({ file }) => {
     setTextLoading(true)
     setTextError(null)
 
-    fetch(outputFileUrl(file))
+    fetchOutputFile(file)
       .then((res) => {
         if (!res.ok) throw new Error(`Failed to fetch file: ${res.status}`)
         return res.text()

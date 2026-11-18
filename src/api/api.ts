@@ -34,6 +34,10 @@ export interface OutputFile {
   mimetype: string;
   code_data_id: string; // reference to code that generated this output
   object_name: string; // S3 object name
+  storage?: "postgres";
+  message_id?: string;
+  job_id?: string;
+  source_path?: string;
 }
 
 export interface ExecutionLogEntry {
@@ -340,7 +344,26 @@ export const deleteStorageObject = (key: string) => deleteStoragePath("object", 
 export const deleteStoragePrefix = (prefix: string) => deleteStoragePath("prefix", prefix);
 
 export const outputFileUrl = (file: OutputFile) => {
+  if (file.storage === "postgres") {
+    return `/api/execution/upload/${file.object_name.split("/").map(encodeURIComponent).join("/")}`;
+  }
   return `${STATIC_FILE_BASE_URL}/${file.object_name}`;
+};
+
+export const fetchOutputFile = (file: OutputFile) => file.storage === "postgres"
+  ? apiFetch(outputFileUrl(file)) : fetch(outputFileUrl(file));
+
+export const downloadOutputFile = async (file: OutputFile) => {
+  const response = await fetchOutputFile(file);
+  if (!response.ok) throw new Error(`Could not download result JSON (${response.status}).`);
+  const url = URL.createObjectURL(await response.blob());
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = file.filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
 export const createAgentSession = async () => {
